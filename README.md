@@ -1,3 +1,18 @@
+# Setting the Env for the model training and also testing
+I had done it using anaconda venv which is a better option in choice , u you can also do it by on your system env. 
+the problem with using on the system env is we tend to use the upper version of python but for training python 8 or lesser is must.
+so I choose to do it in the anaconda venv.
+
+- Install the ultralytics package using conda
+`conda install -c conda-forge ultralytics`
+
+| NOTE : If you are installing in a CUDA(for NVIDIA GPU's) environment, it is best practice to install ultralytics, pytorch, and pytorch-cuda in the same command. This allows the conda package  manager to resolve any conflicts. Alternatively, install pytorch-cuda last to override the CPU-specific pytorch package if necessary
+
+- Install all packages together using conda
+`conda install -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=11.8 ultralytics`
+
+go through (https://docs.ultralytics.com/tasks/)[ultralytics] for have a better set up
+
 # Model-Training
 This Repo is about my model training process and the later upgradation undergone . this is a private repo for my documentary purpose
 
