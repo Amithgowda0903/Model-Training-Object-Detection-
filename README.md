@@ -1,101 +1,120 @@
 # Setting up the Environment for Model Training & Testing
 
-I chose to set up the training environment using an **Anaconda virtual environment** instead of the system’s Python environment.
-The main reason: training requires **Python 3.8 or lower**, while most systems usually run higher versions (≥3.9), which may cause compatibility issues.
-To avoid this, I created a dedicated Anaconda environment with **Python 3.8**.
+I used an **Anaconda virtual environment** instead of the system environment.
+Reason: training requires **Python 3.8 or lower**, while most systems come with higher versions (≥3.9).
+So, I created a Conda venv with Python 3.8 for compatibility.
 
 ### Installing Required Packages
 
-* **Option 1: Install Ultralytics only**
+* **Basic install (Ultralytics only)**
 
 ```bash
 conda install -c conda-forge ultralytics
 ```
 
-* **Option 2: Install all required packages together (recommended for NVIDIA GPUs with CUDA)**
+* **Recommended install (with CUDA for NVIDIA GPUs)**
 
 ```bash
 conda install -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=11.8 ultralytics
 ```
 
-> **Note:**
-> If you are setting up in a CUDA-enabled environment, it is best practice to install **Ultralytics, PyTorch, and PyTorch-CUDA together in one command**.
-> This lets Conda resolve dependencies automatically. If you install them separately, make sure to install **pytorch-cuda last** to override the default CPU-only PyTorch package.
+> **Note:** If you are on a GPU system, always install `pytorch`, `torchvision`, `pytorch-cuda`, and `ultralytics` together.
+> This way Conda resolves conflicts. If you install separately, install **pytorch-cuda last** to override the CPU version.
 
-📖 Reference: [Ultralytics Documentation](https://docs.ultralytics.com/tasks/)
+📖 Reference: [Ultralytics Docs](https://docs.ultralytics.com/tasks/)
 
 ---
 
 # Model Training Documentary
 
-This repository documents my entire **model training process**, along with the **upgrades and improvements** I applied over time.
-It serves as my personal logbook.
+This repository documents my **training journey step by step**.
+I’m writing it in a way that avoids the pitfalls I faced, so others won’t have to “crack their head” while following along.
 
 ---
 
-## Step 1 – Collecting Data
+## Step 1 – Organize the Dataset First (Important!)
 
-For this project, I needed to detect clothing items such as:
+Before labeling, it’s better to **create the dataset structure and split the images**.
+That way, when you use `LabelImg`, you can directly open/save annotations in the correct folders (train/val/test) without having to move them later.
 
-* **Dupatta with Kurti**
-* **Tucked shirts vs Untucked shirts**
-* **Tie**
+Directory layout:
 
-### Data Collection Strategy:
+```
+attire_dataset
+├───train
+│   ├───images
+│   └───labels
+├───valid
+│   ├───images
+│   └───labels
+└───test
+    ├───images
+    └───labels
+```
 
-* Collected **positive samples** for each class (\~150–300 images per class to begin with).
-* Collected **negative samples** (people without ties, casual wear, random backgrounds). Negatives are crucial to reduce false positives.
-* Ensured **diversity** in lighting conditions, angles, and backgrounds.
-* Used a Chrome extension **Fatkun** for bulk image downloading. This significantly sped up dataset creation.
+* Place \~80% of images into `train/images`.
+* Place \~20% into `valid/images`.
+* Optionally, keep a small set (\~10%) in `test/images`.
+* At this stage, `labels/` folders will be empty — LabelImg will generate them when you annotate.
 
 ---
 
-## Step 2 – Labeling the Images
+## Step 2 – Label the Images
 
-Annotation was done using **LabelImg** in YOLO format.
+Now open **LabelImg** and annotate images **inside their respective split folders**:
 
-1. Open `labelImg` → choose **YOLO** format.
-2. Set **Save Dir** = `labels/` folder, **Open Dir** = `images/` folder.
-3. Define the classes (either in `View → YOLO` or via a `classes.txt` file):
+1. Open `LabelImg` → select **YOLO** format.
+2. For **train split**:
+
+   * `Open Dir` → `attire_dataset/train/images`
+   * `Save Dir` → `attire_dataset/train/labels`
+3. For **valid split**:
+
+   * `Open Dir` → `attire_dataset/valid/images`
+   * `Save Dir` → `attire_dataset/valid/labels`
+4. Define classes in `classes.txt`:
 
    ```
    tie
    formal_dress
    kurthi_dupatta
    ```
-4. Draw bounding boxes carefully and select the correct class for each.
-5. Every image must have a matching `.txt` annotation file.
+5. Start drawing bounding boxes and assigning classes.
 
-   * Example: `image1.jpg` → `image1.txt`.
-   * Empty `.txt` is valid (means no objects).
+   * Every image will get a `.txt` with the same name inside the correct `labels/` folder.
+   * Empty `.txt` = no objects (valid).
 
 ---
 
-## Step 3 – Preparing the Dataset Directory
+## Step 3 – Training the Dataset (First Attempt)
 
-Created a clean dataset directory at:
+Once labeling is done, you’re ready to train.
+
+Example dataset directory:
 
 ```
 C:\Users\Amith\OneDrive\Desktop\attire_dataset\
 ```
 
-Folder structure:
+Basic training command:
 
-```
-attire_dataset/
-  images/
-    train/
-    val/
-    test/    (optional at first)
-  labels/
-    train/
-    val/
-    test/
+```bash
+yolo task=detect mode=train model=yolov8n.pt data="C:/Users/Amith/OneDrive/Desktop/attire_dataset/data.yaml" \
+     epochs=80 imgsz=640 batch=8 workers=0 device=cpu name=attire_v1
 ```
 
-* Train/Val split: **80/20** ratio.
-* Optionally, I set aside \~10% of the training set for testing.
-* Important: Filenames of images and labels must match exactly across the folders.
+* `train/` and `valid/` are used automatically from `data.yaml`.
+* The best weights will be saved to:
+
+  ```
+  runs/detect/attire_v1/weights/best.pt
+  ```
 
 ---
-Would you like me to **extend this further into a versioned timeline style** (like `v1 First Training`, `v2 Refined Training`, `v3 GPU Training`) — so your repo looks like a research documentary with clear upgrades?
+
+✅ This order (split → label → train) makes the workflow clean and avoids dataset mismatches.
+
+---
+
+Would you like me to now **merge this with the refined process from your other file** (the one with DeepFace integration, remapping script, auto-split helper) so the doc flows like:
+**v1 (this process) → v2 (refinements) → v3 (upgrades)**?
