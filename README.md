@@ -287,10 +287,12 @@ cv2.destroyAllWindows()
 ## How YOLO and DeepFace Work Together
 
 In this project, we actually use **two separate models**:
+[yolov8n.pt](https://huggingface.co/Ultralytics/YOLOv8/resolve/main/yolov8n.pt)
+[yolov8n-face-lindevs.pt](https://github.com/lindevs/yolov8-face/releases/download/1.0.1/yolov8n-face-lindevs.pt)
 
 1. **YOLO for Object Detection**
 
-   * One YOLO model is trained specifically for **faces** (`[yolov8n-face-lindevs.pt](https://github.com/lindevs/yolov8-face/releases/download/1.0.1/yolov8n-face-lindevs.pt)`).
+   * One YOLO model is trained specifically for **faces** (`yolov8n-face-lindevs.pt`).
    * Another YOLO model is trained for **attire detection** (`best.pt`, generated from our training).
    * YOLO’s job is to **detect objects in the frame** (faces or clothing items) by drawing bounding boxes and classifying them.
 
