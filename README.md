@@ -365,12 +365,6 @@ Without it, our model would have to learn everything from scratch, which would r
 
 ## 🔚 Conclusion Note
 
-While this detection + recognition pipeline worked, it wasn’t always reliable for **attire detection**. YOLO with bounding boxes struggled when clothes overlapped or looked similar. That’s why I upgraded the next version of the project to **instance segmentation**, which gives finer details of clothing outlines.
-
----
-
-## 🔚 Conclusion Note
-
 While this process (object detection with YOLOv8) worked well for **basic recognition** of ties, kurtis, and formal wear, it **failed to consistently perform** for my **attire detection task**.
 
 The main issue was that bounding boxes alone were **not enough** to clearly distinguish overlapping or partially visible clothing items (for example, **kurti with dupatta vs. formal dress**). The model often confused classes in cases where boundaries were not clear, lighting varied, or clothing overlapped.
