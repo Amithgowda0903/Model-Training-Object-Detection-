@@ -81,6 +81,49 @@ Use **[LabelImg](https://sourceforge.net/projects/labelimg.mirror/)**:
 
 ---
 
+Exactly, bro 👍 That’s a key step — YOLO needs a **data.yaml** file, and since we used LabelImg, we have to **manually create it**.
+
+Here’s how you can add this section in your doc (preferably **after Step 2 – Labeling** and before Step 3 – Training):
+
+---
+
+## Step 2.5 – Creating the `data.yaml` File
+
+After labeling the images with **LabelImg**, we need to tell YOLO **where the dataset is located** and **which classes we are detecting**.
+This is done with a file named `data.yaml`.so we need to copy save a yaml file with the belopw info modify the nmaes as per yor dataset.
+you can copy it in a text file and save it as yaml.
+
+### 📄 Example: `data.yaml`
+
+```yaml
+# Path to the root dataset folder
+path: C:/Users/Amith/OneDrive/Desktop/attire_dataset
+
+# Train/Val/Test directories (relative to path above)
+train: train/images
+val: valid/images
+test: test/images   # optional
+
+# Number of classes
+nc: 3
+
+# Class names (order matters)
+names: [tie, formal_dress, kurthi_dupatta]
+```
+
+---
+
+### 📌 Key Points:
+
+* The `path:` field points to your **dataset root folder**.
+* `train`, `val`, `test` are **relative paths** inside that dataset folder.
+* `nc` = number of classes (here = 3).
+* `names` = list of class names in the **same order** as your `classes.txt` used in LabelImg.
+
+> ⚠️ Important: If you don’t create this `data.yaml`, YOLO won’t know what classes exist or where your dataset is stored.
+
+---
+
 # Step 3 – Training the Dataset
 
 ## Model Path Requirement
