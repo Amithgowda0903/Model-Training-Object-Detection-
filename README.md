@@ -107,8 +107,6 @@ nc: 3
 names: [tie, formal_dress, kurthi_dupatta]
 ```
 
----
-
 * The `path:` field points to your **dataset root folder**.
 * `train`, `val`, `test` are **relative paths** inside that dataset folder.
 * `nc` = number of classes (here = 3).
