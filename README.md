@@ -86,10 +86,10 @@ Use **[LabelImg](https://sourceforge.net/projects/labelimg.mirror/)**:
 ## Step 2.5 – Creating the `data.yaml` File
 
 After labeling the images with **LabelImg**, we need to tell YOLO **where the dataset is located** and **which classes we are detecting**.
-This is done with a file named `data.yaml`.so we need to copy save a yaml file with the belopw info modify the nmaes as per yor dataset.
-you can copy it in a text file and save it as yaml.
+This is done with a file named `data.yaml`.so we need to copy and save a yaml file with the below info modify the names as per yor dataset.
+you can copy the below example yaml to a text file and save it as yaml.
 
-### 📄 Example: `data.yaml`
+###  Example: `data.yaml`
 
 ```yaml
 # Path to the root dataset folder
@@ -109,14 +109,12 @@ names: [tie, formal_dress, kurthi_dupatta]
 
 ---
 
-### 📌 Key Points:
-
 * The `path:` field points to your **dataset root folder**.
 * `train`, `val`, `test` are **relative paths** inside that dataset folder.
 * `nc` = number of classes (here = 3).
 * `names` = list of class names in the **same order** as your `classes.txt` used in LabelImg.
 
-> ⚠️ Important: If you don’t create this `data.yaml`, YOLO won’t know what classes exist or where your dataset is stored.
+> Important: If you don’t create this `data.yaml`, YOLO won’t know what classes exist or where your dataset is stored.
 
 ---
 
