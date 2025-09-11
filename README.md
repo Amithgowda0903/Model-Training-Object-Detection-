@@ -227,21 +227,11 @@ C:\Users\name\OneDrive\Desktop\Attendance System
 │   trial.py
 │   yolov8n-face-lindevs.pt
 │
-├───.idea
-│   │   Attendance System.iml
-│   │   misc.xml
-│   │   modules.xml
-│   │   workspace.xml
-│
 ├───Database
-│   │   ds_model_arcface_detector_opencv_aligned_normalization_base_expand_0.pkl
-│   │   ds_model_vggface_detector_opencv_aligned_normalization_base_expand_0.pkl
-│   └───name
-│           name.jpg
-│           name_2.png
-│
-└───yolo11s-seg
-        best.pt
+     └───name
+            image_of_person1.jpg
+            Image_of_person1_2.png
+            Image_of_person1_3.jpg
 ```
 
 ---
