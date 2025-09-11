@@ -18,26 +18,19 @@ conda install -c conda-forge ultralytics
 conda install -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=11.8 ultralytics
 ```
 
-> **Note:** If you are on a GPU system, always install `pytorch`, `torchvision`, `pytorch-cuda`, and `ultralytics` together.
+> **Note:**
+> If you are on a GPU system, always install `pytorch`, `torchvision`, `pytorch-cuda`, and `ultralytics` together.
 > This way Conda resolves conflicts. If you install separately, install **pytorch-cuda last** to override the CPU version.
 
 📖 Reference: [Ultralytics Docs](https://docs.ultralytics.com/tasks/)
 
 ---
 
-# Model Training Documentary
+# Dataset Preparation & Labeling
 
-This repository documents my **training journey step by step**.
-I’m writing it in a way that avoids the pitfalls I faced, so others won’t have to “crack their head” while following along.
+## Step 1 – Organize the Dataset First
 
----
-
-## Step 1 – Organize the Dataset First (Important!)
-
-Before labeling, it’s better to **create the dataset structure and split the images**.
-That way, when you use `LabelImg`, you can directly open/save annotations in the correct folders (train/val/test) without having to move them later.
-
-Directory layout:
+Before labeling, create the dataset directory structure and split the images.
 
 ```
 attire_dataset
@@ -52,18 +45,23 @@ attire_dataset
     └───labels
 ```
 
-* Place \~80% of images into `train/images`.
-* Place \~20% into `valid/images`.
-* Optionally, keep a small set (\~10%) in `test/images`.
-* At this stage, `labels/` folders will be empty — LabelImg will generate them when you annotate.
+* Place \~80% images in `train/images`.
+* Place \~20% in `valid/images`.
+* Optionally, keep 10% in `test/images`.
+* Labels folder will be filled during annotation.
 
 ---
 
-## Step 2 – Label the Images
+## Step 2 – Label the Images (Object Detection)
 
-Now open **LabelImg** and annotate images **inside their respective split folders**:
+At this stage, we are doing **object detection labeling**.
+This means we annotate bounding boxes around specific classes (tie, kurti, etc.) so that YOLO can detect and classify them.
 
-1. Open `LabelImg` → select **YOLO** format.
+Later, I switched to **instance segmentation** for more fine-grained results, but here we stick with detection.
+
+Use **LabelImg**:
+
+1. Select **YOLO format**.
 2. For **train split**:
 
    * `Open Dir` → `attire_dataset/train/images`
@@ -72,49 +70,232 @@ Now open **LabelImg** and annotate images **inside their respective split folder
 
    * `Open Dir` → `attire_dataset/valid/images`
    * `Save Dir` → `attire_dataset/valid/labels`
-4. Define classes in `classes.txt`:
+4. Define your classes in `classes.txt`:
 
    ```
    tie
    formal_dress
    kurthi_dupatta
    ```
-5. Start drawing bounding boxes and assigning classes.
-
-   * Every image will get a `.txt` with the same name inside the correct `labels/` folder.
-   * Empty `.txt` = no objects (valid).
+5. Annotate carefully. Each image will generate a `.txt` file with the same name under `labels/`.
 
 ---
 
-## Step 3 – Training the Dataset (First Attempt)
+# Step 3 – Training the Dataset
 
-Once labeling is done, you’re ready to train.
+## Model Path Requirement
 
-Example dataset directory:
+The YOLO pretrained model file (e.g. `yolov8n.pt`) must be **either**:
 
-```
-C:\Users\Amith\OneDrive\Desktop\attire_dataset\
-```
+* Present inside the Conda environment’s `envs` folder, **or**
+* You must provide the **absolute path** to the file in the training command.
 
-Basic training command:
+---
+
+## Training Commands
+
+### CPU Training Example
 
 ```bash
-yolo task=detect mode=train model=yolov8n.pt data="C:/Users/Amith/OneDrive/Desktop/attire_dataset/data.yaml" \
+yolo task=detect mode=train model=yolov8n.pt data="C:/Users/name/OneDrive/Desktop/attire_dataset/data.yaml" \
      epochs=80 imgsz=640 batch=8 workers=0 device=cpu name=attire_v1
 ```
 
-* `train/` and `valid/` are used automatically from `data.yaml`.
-* The best weights will be saved to:
+### GPU Training Example
 
-  ```
-  runs/detect/attire_v1/weights/best.pt
-  ```
+In my case I trained on an **NVIDIA GPU**, so I set the device as `0`:
 
----
-
-✅ This order (split → label → train) makes the workflow clean and avoids dataset mismatches.
+```bash
+yolo task=detect mode=train model=yolov8n.pt data="C:/Users/name/OneDrive/Desktop/attire_dataset/data.yaml" \
+     epochs=80 imgsz=640 batch=8 workers=2 device=0 name=attire_v1
+```
 
 ---
 
-Would you like me to now **merge this with the refined process from your other file** (the one with DeepFace integration, remapping script, auto-split helper) so the doc flows like:
-**v1 (this process) → v2 (refinements) → v3 (upgrades)**?
+## Hyperparameters Explained
+
+* **epochs** → number of complete passes through the dataset (higher = longer training, better results up to a point).
+* **imgsz** → image size used for training (default 640px; higher = more detail but slower).
+* **batch** → number of images processed per step (limited by GPU/CPU memory).
+* **workers** → number of CPU threads for data loading (0 = safe for Windows, >0 speeds up on Linux).
+* **device** → where to train (`cpu`, `0` for GPU:0, `0,1` for multiple GPUs).
+* **name** → experiment name (creates `runs/detect/{name}/`).
+
+---
+
+## Training Outputs – `best.pt` vs `last.pt`
+
+After training, you’ll get two key weight files inside `runs/detect/attire_v1/weights/`:
+
+* **best.pt** → model checkpoint with the **highest validation accuracy (mAP)** during training.
+* **last.pt** → model checkpoint from the **final training epoch**, regardless of performance.
+
+> In practice, you usually deploy **best.pt**, but sometimes `last.pt` is useful if you want to continue training later.
+
+---
+
+## Monitoring Training
+
+YOLO automatically generates **graphs and logs** during training.
+
+* Monitor **losses** (box loss, cls loss, dfl loss).
+* Track **mAP, precision, recall** for train/val.
+* Learning how to read these curves is crucial for diagnosing overfitting, underfitting, or data imbalance.
+
+---
+
+## Validation & Testing
+
+* **Validation** → evaluates the model on your `valid/` dataset. This checks accuracy on known but unseen data.
+* **Testing** → evaluates the model on a separate `test/` dataset (completely unseen during training & validation).
+
+### Validate Command
+
+```bash
+yolo task=detect mode=val model="runs/detect/attire_v1/weights/best.pt" data="C:/Users/name/OneDrive/Desktop/attire_dataset/data.yaml"
+```
+
+### Test Command
+
+```bash
+yolo task=detect mode=predict model="runs/detect/attire_v1/weights/best.pt" source="C:/Users/name/OneDrive/Desktop/attire_dataset/test/images"
+```
+
+---
+
+# Step 4 – PyCharm Setup
+
+1. Install **PyCharm Community Edition**.
+2. Create a new project and set the interpreter to your **Conda environment**:
+
+   ```
+   anaconda3/envs/<your_env_name>
+   ```
+3. Install additional dependencies in the same environment:
+
+   ```bash
+   pip install deepface tensorflow opencv-python matplotlib pandas
+   ```
+
+This ensures everything runs inside the Conda venv linked to PyCharm.
+
+---
+
+# Step 5 – Project Structure
+
+My project folder looked like this after setup:
+
+```
+C:\Users\name\OneDrive\Desktop\Attendance System
+│   best.pt
+│   trial.py
+│   yolov8n-face-lindevs.pt
+│
+├───.idea
+│   │   Attendance System.iml
+│   │   misc.xml
+│   │   modules.xml
+│   │   workspace.xml
+│
+├───Database
+│   │   ds_model_arcface_detector_opencv_aligned_normalization_base_expand_0.pkl
+│   │   ds_model_vggface_detector_opencv_aligned_normalization_base_expand_0.pkl
+│   └───name
+│           name.jpg
+│           name_2.png
+│
+└───yolo11s-seg
+        best.pt
+```
+
+---
+
+# Step 6 – Code Execution
+
+Here’s the execution script combining **YOLO (attire detection)** + **DeepFace (face recognition)**:
+
+```python
+import cv2
+from ultralytics import YOLO
+from deepface import DeepFace
+
+# 1) Face detection model (YOLO pretrained for faces)
+face_model = YOLO(r"C:\Users\name\OneDrive\Desktop\Attendance System\yolov8n-face-lindevs.pt")
+
+# 2) Attire detection model (your trained model)
+attire_model = YOLO(r"C:\Users\name\OneDrive\Desktop\Attendance System\runs\detect\attire_v1\weights\best.pt")
+
+# DeepFace database path
+db_path = r"C:\Users\name\OneDrive\Desktop\Attendance System\Database"
+
+# Classes to display
+SHOW_CLASSES = {"tie", "formal_dress", "kurthi_dupatta"}
+
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
+if not cap.isOpened():
+    print("❌ Cannot access camera")
+    exit()
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # --- Face Recognition ---
+    face_results = face_model(frame, conf=0.5, verbose=False)
+    for r in face_results:
+        for box in r.boxes:
+            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+            face_roi = frame[y1:y2, x1:x2]
+            label = "Unknown"
+
+            try:
+                dfs = DeepFace.find(img_path=face_roi, db_path=db_path, enforce_detection=False, silent=True)
+                if len(dfs) > 0 and not dfs[0].empty:
+                    identity_path = dfs[0].iloc[0]['identity']
+                    person = identity_path.split("\\")[-2].split("/")[-2]
+                    label = person
+            except Exception:
+                pass
+
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (36, 255, 12), 2)
+            cv2.putText(frame, label, (x1, y1 - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (36, 255, 12), 2)
+
+    # --- Attire Detection ---
+    attire_results = attire_model(frame, conf=0.35, iou=0.5, verbose=False)
+    for r in attire_results:
+        for box in r.boxes:
+            cls_id = int(box.cls[0])
+            cls_name = attire_model.names[cls_id]
+            if cls_name not in SHOW_CLASSES:
+                continue
+
+            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 140, 255), 2)
+            cv2.putText(frame, cls_name, (x1, y1 - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 140, 255), 2)
+
+    cv2.imshow("Attendance + Attire Detection", frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+---
+
+## 🔚 Conclusion Note
+
+While this process (object detection with YOLOv8) worked well for **basic recognition** of ties, kurtis, and formal wear, it **failed to consistently perform** for my **attire detection task**.
+
+The main issue was that bounding boxes alone were **not enough** to clearly distinguish overlapping or partially visible clothing items (for example, **kurti with dupatta vs. formal dress**). The model often confused classes in cases where boundaries were not clear, lighting varied, or clothing overlapped.
+
+This made me realize that **object detection has its limits** for attire-based classification, especially in real-world scenarios like an **attendance system**, where precision matters.
+
+-> For better accuracy, I later upgraded to **instance segmentation** (YOLO segmentation models), which doesn’t just draw boxes but also **outlines the exact shape of the clothing**. This helped the model learn finer details and reduced misclassifications.
+
+### If you are following this documentation:
+
+* Treat this section as the **baseline training (v1)**.
+* Study the **next stage of training (v2: segmentation upgrade)** where I explain how and why I switched to instance segmentation, and the improvements I observed.
+
