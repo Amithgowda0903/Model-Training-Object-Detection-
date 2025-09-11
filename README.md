@@ -283,10 +283,6 @@ cap.release()
 cv2.destroyAllWindows()
 ```
 ---
-Perfect, bro 👌 That’s an important clarification to avoid confusion for anyone reading your doc.
-Here’s the **extra explanatory note** you can add just before the conclusion:
-
----
 
 ## How YOLO and DeepFace Work Together
 
