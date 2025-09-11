@@ -1,9 +1,3 @@
-Perfect 👍 I’ll **improvise** your draft into a more polished, professional, and documentary-style write-up while keeping your tone (personal + step recording).
-
-Here’s the improved version:
-
----
-
 # Setting up the Environment for Model Training & Testing
 
 I chose to set up the training environment using an **Anaconda virtual environment** instead of the system’s Python environment.
