@@ -59,7 +59,7 @@ This means we annotate bounding boxes around specific classes (tie, kurti, etc.)
 
 Later, I switched to **instance segmentation** for more fine-grained results, but here we stick with detection.
 
-Use **LabelImg**:
+Use **[LabelImg]([url](https://sourceforge.net/projects/labelimg.mirror/))**:
 
 1. Select **YOLO format**.
 2. For **train split**:
@@ -282,6 +282,54 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 ```
+---
+Perfect, bro 👌 That’s an important clarification to avoid confusion for anyone reading your doc.
+Here’s the **extra explanatory note** you can add just before the conclusion:
+
+---
+
+## How YOLO and DeepFace Work Together
+
+In this project, we actually use **two separate models**:
+
+1. **YOLO for Object Detection**
+
+   * One YOLO model is trained specifically for **faces** (`yolov8n-face-lindevs.pt`).
+   * Another YOLO model is trained for **attire detection** (`best.pt`, generated from our training).
+   * YOLO’s job is to **detect objects in the frame** (faces or clothing items) by drawing bounding boxes and classifying them.
+
+2. **DeepFace for Face Recognition**
+
+   * Once YOLO detects the **face region**, we crop that part of the frame and pass it to DeepFace.
+   * DeepFace compares the cropped face with images in the **Database/** folder.
+   * It then recognizes the person (e.g., identifying “Amith” if it matches the stored image).
+
+So, YOLO = *“Where is it?”* → **Detection**
+DeepFace = *“Who is it?”* → **Recognition**
+
+---
+
+## Why Download YOLOv8n Pretrained Models If We Already Have `best.pt`?
+
+This is a common doubt:
+
+* `best.pt` is the **custom-trained weights** for our attire detection task.
+* But to **train this model in the first place**, YOLO needs a **base pretrained model** (`yolov8n.pt`).
+* During training, YOLO uses transfer learning — starting from `yolov8n.pt` and gradually fine-tuning it on our attire dataset.
+* After training completes, YOLO saves:
+
+  * `best.pt` → checkpoint with the best validation score
+  * `last.pt` → final epoch checkpoint
+
+So, the `yolov8n.pt` we downloaded wasn’t wasted — it was the **foundation** for creating our `best.pt`.
+Without it, our model would have to learn everything from scratch, which would require **much more data and compute**.
+
+---
+
+## 🔚 Conclusion Note
+
+While this detection + recognition pipeline worked, it wasn’t always reliable for **attire detection**. YOLO with bounding boxes struggled when clothes overlapped or looked similar. That’s why I upgraded the next version of the project to **instance segmentation**, which gives finer details of clothing outlines.
+
 ---
 
 ## 🔚 Conclusion Note
