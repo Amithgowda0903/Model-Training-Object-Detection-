@@ -287,8 +287,8 @@ cv2.destroyAllWindows()
 ## How YOLO and DeepFace Work Together
 
 In this project, we actually use **two separate models**:
-[yolov8n.pt](https://huggingface.co/Ultralytics/YOLOv8/resolve/main/yolov8n.pt)
-[yolov8n-face-lindevs.pt](https://github.com/lindevs/yolov8-face/releases/download/1.0.1/yolov8n-face-lindevs.pt)
+1. [yolov8n.pt](https://huggingface.co/Ultralytics/YOLOv8/resolve/main/yolov8n.pt)
+2. [yolov8n-face-lindevs.pt](https://github.com/lindevs/yolov8-face/releases/download/1.0.1/yolov8n-face-lindevs.pt)
 
 1. **YOLO for Object Detection**
 
