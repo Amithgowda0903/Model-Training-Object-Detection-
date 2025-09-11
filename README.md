@@ -81,11 +81,7 @@ Use **[LabelImg](https://sourceforge.net/projects/labelimg.mirror/)**:
 
 ---
 
-Exactly, bro 👍 That’s a key step — YOLO needs a **data.yaml** file, and since we used LabelImg, we have to **manually create it**.
 
-Here’s how you can add this section in your doc (preferably **after Step 2 – Labeling** and before Step 3 – Training):
-
----
 
 ## Step 2.5 – Creating the `data.yaml` File
 
