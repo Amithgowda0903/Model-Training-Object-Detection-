@@ -41,8 +41,9 @@ attire_dataset
 │   ├───images
 │   └───labels
 └───test
-    ├───images
-    └───labels
+|   ├───images
+|   └───labels
+|__data.yaml
 ```
 
 * Place \~80% images in `train/images`.
