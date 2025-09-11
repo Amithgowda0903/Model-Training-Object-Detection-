@@ -1,54 +1,107 @@
-# Setting the Env for the model training and also testing
-I had done it using anaconda venv which is a better option in choice , u you can also do it by on your system env. 
-the problem with using on the system env is we tend to use the upper version of python but for training python 8 or lesser is must.
-so I choose to do it in the anaconda venv.
+Perfect 👍 I’ll **improvise** your draft into a more polished, professional, and documentary-style write-up while keeping your tone (personal + step recording).
 
-- Install the ultralytics package using conda
-`conda install -c conda-forge ultralytics`
+Here’s the improved version:
 
-| NOTE : If you are installing in a CUDA(for NVIDIA GPU's) environment, it is best practice to install ultralytics, pytorch, and pytorch-cuda in the same command. This allows the conda package  manager to resolve any conflicts. Alternatively, install pytorch-cuda last to override the CPU-specific pytorch package if necessary
+---
 
-- Install all packages together using conda
-`conda install -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=11.8 ultralytics`
+# Setting up the Environment for Model Training & Testing
 
-go through (https://docs.ultralytics.com/tasks/)[ultralytics] for have a better set up
+I chose to set up the training environment using an **Anaconda virtual environment** instead of the system’s Python environment.
+The main reason: training requires **Python 3.8 or lower**, while most systems usually run higher versions (≥3.9), which may cause compatibility issues.
+To avoid this, I created a dedicated Anaconda environment with **Python 3.8**.
 
-# Model-Training
-This Repo is about my model training process and the later upgradation undergone . this is a private repo for my documentary purpose
+### Installing Required Packages
 
-# Collecting the required data
-First we need to collect the required data, in our case it was to collect images like duppata - kurti , tucked shirts - untucked shirts , tie
-Gather positives for each class (aim for at least ~150–300 images/class to start).
-- Also collect **negatives** (people without ties, casual wear, random scenes). Negatives help reduce false positives.
-- Mix lighting, angles, backgrounds. Prefer JPG/PNG.
-we used a 3rd party extension for downloading the images named **fatkun** it help in downloading bulk images.
+* **Option 1: Install Ultralytics only**
 
-# labeling the images
-after collecting the images we need to label them (box labels) for object detection, we used the **LabelImg** tool for annotating the images.
-1. `labelImg` → choose **YOLO** format.
-2. Set “Save Dir” to your `labels` folder and “Open Dir” to your images folder.
-3. Create a **classes list**: in LabelImg, press `View → YOLO` and set your classes list (or ensure a `classes.txt` exists with):
-    ```
-    tie
-    formal_dress
-    kurthi_dupatta
-    ```
-4. Draw boxes. Make sure you select the correct class before each box.
-5. Each image must have a `.txt` with the **same filename**. (Empty `.txt` means no objects = okay.)
+```bash
+conda install -c conda-forge ultralytics
+```
 
-# training the dataset (first time training)
-Make a clean dataset directory, e.g. `C:\Users\Amith\OneDrive\Desktop\attire_dataset\`:
+* **Option 2: Install all required packages together (recommended for NVIDIA GPUs with CUDA)**
+
+```bash
+conda install -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=11.8 ultralytics
+```
+
+> **Note:**
+> If you are setting up in a CUDA-enabled environment, it is best practice to install **Ultralytics, PyTorch, and PyTorch-CUDA together in one command**.
+> This lets Conda resolve dependencies automatically. If you install them separately, make sure to install **pytorch-cuda last** to override the default CPU-only PyTorch package.
+
+📖 Reference: [Ultralytics Documentation](https://docs.ultralytics.com/tasks/)
+
+---
+
+# Model Training Documentary
+
+This repository documents my entire **model training process**, along with the **upgrades and improvements** I applied over time.
+It serves as my personal logbook.
+
+---
+
+## Step 1 – Collecting Data
+
+For this project, I needed to detect clothing items such as:
+
+* **Dupatta with Kurti**
+* **Tucked shirts vs Untucked shirts**
+* **Tie**
+
+### Data Collection Strategy:
+
+* Collected **positive samples** for each class (\~150–300 images per class to begin with).
+* Collected **negative samples** (people without ties, casual wear, random backgrounds). Negatives are crucial to reduce false positives.
+* Ensured **diversity** in lighting conditions, angles, and backgrounds.
+* Used a Chrome extension **Fatkun** for bulk image downloading. This significantly sped up dataset creation.
+
+---
+
+## Step 2 – Labeling the Images
+
+Annotation was done using **LabelImg** in YOLO format.
+
+1. Open `labelImg` → choose **YOLO** format.
+2. Set **Save Dir** = `labels/` folder, **Open Dir** = `images/` folder.
+3. Define the classes (either in `View → YOLO` or via a `classes.txt` file):
+
+   ```
+   tie
+   formal_dress
+   kurthi_dupatta
+   ```
+4. Draw bounding boxes carefully and select the correct class for each.
+5. Every image must have a matching `.txt` annotation file.
+
+   * Example: `image1.jpg` → `image1.txt`.
+   * Empty `.txt` is valid (means no objects).
+
+---
+
+## Step 3 – Preparing the Dataset Directory
+
+Created a clean dataset directory at:
+
+```
+C:\Users\Amith\OneDrive\Desktop\attire_dataset\
+```
+
+Folder structure:
 
 ```
 attire_dataset/
   images/
     train/
     val/
-    test/           (optional at first)
+    test/    (optional at first)
   labels/
     train/
     val/
     test/
 ```
 
-Split roughly **80/20** train/val (and optionally 10% test taken from train). Keep filenames matched across `images/` and `labels/`.
+* Train/Val split: **80/20** ratio.
+* Optionally, I set aside \~10% of the training set for testing.
+* Important: Filenames of images and labels must match exactly across the folders.
+
+---
+Would you like me to **extend this further into a versioned timeline style** (like `v1 First Training`, `v2 Refined Training`, `v3 GPU Training`) — so your repo looks like a research documentary with clear upgrades?
