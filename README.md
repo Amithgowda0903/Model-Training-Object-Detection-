@@ -59,7 +59,7 @@ This means we annotate bounding boxes around specific classes (tie, kurti, etc.)
 
 Later, I switched to **instance segmentation** for more fine-grained results, but here we stick with detection.
 
-Use **[LabelImg]([url](https://sourceforge.net/projects/labelimg.mirror/))**:
+Use **[LabelImg](https://sourceforge.net/projects/labelimg.mirror/)**:
 
 1. Select **YOLO format**.
 2. For **train split**:
@@ -290,7 +290,7 @@ In this project, we actually use **two separate models**:
 
 1. **YOLO for Object Detection**
 
-   * One YOLO model is trained specifically for **faces** (`yolov8n-face-lindevs.pt`).
+   * One YOLO model is trained specifically for **faces** (`[yolov8n-face-lindevs.pt](https://github.com/lindevs/yolov8-face/releases/download/1.0.1/yolov8n-face-lindevs.pt)`).
    * Another YOLO model is trained for **attire detection** (`best.pt`, generated from our training).
    * YOLO’s job is to **detect objects in the frame** (faces or clothing items) by drawing bounding boxes and classifying them.
 
@@ -305,7 +305,7 @@ DeepFace = *“Who is it?”* → **Recognition**
 
 ---
 
-## Why Download YOLOv8n Pretrained Models If We Already Have `best.pt`?
+## Why Download [YOLOv8n](https://huggingface.co/Ultralytics/YOLOv8/resolve/main/yolov8n.pt) Pretrained Models If We Already Have `best.pt`?
 
 This is a common doubt:
 
